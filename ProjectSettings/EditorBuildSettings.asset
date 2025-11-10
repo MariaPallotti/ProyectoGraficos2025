@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1045 &1
+EditorBuildSettings:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Scenes:
+  - enabled: 1
+    path: Assets/Scenes/MenuPrincipal.unity
+    guid: 7786c1ad67708b3449145df0d8f3f152
+  - enabled: 1
+    path: Assets/Scenes/MainScene.unity
+    guid: 877a15f7a0d44324b96dab54c5035503
+  - enabled: 1
+    path: Assets/Scenes/Grunt(s)EncounterScene.unity
+    guid: b1290330583ed154b81a418c1f7b2e60
+  - enabled: 1
+    path: Assets/Scenes/Grunt(L)EncounterScene.unity
+    guid: 9164da3b19bbb8d418113e08eaa60d6a
+  - enabled: 1
+    path: Assets/Scenes/CEncounterScene.unity
+    guid: d40d9d919c1106144a4d9f4ae4f36c36
+  - enabled: 1
+    path: Assets/Scenes/PEncounterScene.unity
+    guid: 36cb0fa93c4613b41b6b43c123ac045b
+  - enabled: 1
+    path: Assets/Scenes/WizardEncounterScene.unity
+    guid: 742d7b987052789459edcfdf19911c78
+  m_configObjects: {}
