@@ -1,95 +1,95 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class HealthUI : MonoBehaviour
 {
+    private HeartsUI heartsUI;
+    private Stats statsScript; // Renombrado para evitar confusión con la clase Stats
 
-    private HeartsUI heartsUI; 
-    private Stats Stats;
+    [Header("Configuración Combate")]
+    public int maxHealth = 100;
+    public int currentHealth = 100;
+    public Image healthBar;
+    public float velocidadBarra = 5f; // Velocidad de la animación
 
-    // Vida en combate
-    public int maxHealth = 100; // Salud máxima durante el combate
-    public int currentHealth = 100; // Salud actual durante el combate
-    public Image healthBar; // Barra de vida (Image con Fill)
-
-    // Maná
+    [Header("Configuración Maná")]
     public int maxMana = 100;
     public int currentMana;
-    public Image bar; // Barra de maná (Image con Fill)
+    public Image manaBar; // Renombrado de 'bar' a 'manaBar' para claridad
 
-
-
-    // Start is called before the first frame update
     void Start()
     {
-        heartsUI = FindObjectOfType<HeartsUI>(); // Buscar automáticamente el script HeartsUI
-        if (heartsUI == null)
-        {
-            Debug.LogError("No se encontró HeartsUI en la escena.");
-        }
-        Stats = FindObjectOfType<Stats>();
-        if (Stats == null)
-        {
-            Debug.LogError("No se encontró Stats en la escena.");
-        }
-        currentHealth = maxHealth;
-        UpdateHealthBar();
+        heartsUI = FindObjectOfType<HeartsUI>();
+        statsScript = FindObjectOfType<Stats>();
 
-        currentMana = Stats.GetBotellas();
-        maxMana = currentMana;
-        UpdateManaBar();
+        if (heartsUI == null) Debug.LogError("Falta HeartsUI");
+        if (statsScript == null) Debug.LogError("Falta Stats");
+
+        StartCombat();
     }
 
-    void Update()
-    {
-        // Actualizar las barras de vida y mana
-        UpdateHealthBar();
-        UpdateManaBar();
-    }
+    // Eliminamos el Update() para ahorrar recursos. Solo actualizamos cuando algo cambia.
 
-    // Método para actualizar visualmente la barra de vida
-    private void UpdateHealthBar()
-    {
-        if (healthBar != null)
-        {
-            healthBar.fillAmount = (float)currentHealth / maxHealth;
-        }
-    }
-
-    // Método para inicializar los stats al comienzo de un combate
     public void StartCombat()
     {
         currentHealth = maxHealth;
-        UpdateHealthBar();
-        currentMana = Stats.GetBotellas();
-        maxMana = currentMana;
-        UpdateManaBar();
+        // Obtenemos maná global
+        if (statsScript != null)
+        {
+            currentMana = statsScript.GetBotellas();
+            maxMana = currentMana; // O un valor fijo si prefieres
+        }
+
+        // Actualización inicial instantánea
+        if (healthBar) healthBar.fillAmount = 1;
+        if (manaBar) manaBar.fillAmount = 1;
     }
 
-
-    // Método para recibir daño durante el combate
     public void TakeCombatDamage(int damage)
     {
         currentHealth -= damage;
-        currentHealth = Mathf.Clamp(currentHealth, 0, maxHealth);  // Asegúrate de que la salud no baje de 0
+        currentHealth = Mathf.Clamp(currentHealth, 0, maxHealth);
+
+        // Actualizamos la barra visualmente con animación
+        if (healthBar != null) StartCoroutine(AnimarBarra(healthBar, (float)currentHealth / maxHealth));
 
         if (currentHealth <= 0)
         {
-            Debug.Log("El jugador ha perdido el combate.");
-            if (heartsUI != null)
-            {
-                heartsUI.LoseHeart(); // Llamar a la función LoseHeart()
-            }
-
-            // Comprobar si el jugador aún tiene corazones restantes
-            if (heartsUI != null && heartsUI.GetHearts() <= 0)
-            {
-                Die(); // Si no hay corazones, el jugador muere
-            }
+            if (heartsUI != null) heartsUI.LoseHeart();
+            if (heartsUI != null && heartsUI.GetHearts() <= 0) Die();
         }
-        UpdateHealthBar();
+    }
+
+    public bool ConsumeMana(int amount)
+    {
+        if (amount > currentMana) return false;
+
+        currentMana -= amount;
+
+        // Animamos la barra de maná
+        if (manaBar != null) StartCoroutine(AnimarBarra(manaBar, (float)currentMana / maxMana));
+
+        return true;
+    }
+
+    public void RegenerateMana(int amount)
+    {
+        currentMana += amount;
+        if (currentMana > maxMana) currentMana = maxMana;
+
+        if (manaBar != null) StartCoroutine(AnimarBarra(manaBar, (float)currentMana / maxMana));
+    }
+
+    // CORRUTINA MÁGICA: Hace que la barra se mueva suavemente hacia el objetivo
+    IEnumerator AnimarBarra(Image barra, float objetivo)
+    {
+        while (Mathf.Abs(barra.fillAmount - objetivo) > 0.01f)
+        {
+            barra.fillAmount = Mathf.Lerp(barra.fillAmount, objetivo, Time.deltaTime * velocidadBarra);
+            yield return null;
+        }
+        barra.fillAmount = objetivo;
     }
 
     void Die()
@@ -97,54 +97,8 @@ public class HealthUI : MonoBehaviour
         heartsUI.GameOver();
     }
 
-    // Verificar si el personaje sigue vivo
-    public bool IsAlive()
-    {
-        return currentHealth > 0;
-    }
-
-    // Método para actualizar visualmente la barra de maná
-    private void UpdateManaBar()
-    {
-        if (bar != null)
-        {
-            bar.fillAmount = (float)currentMana / maxMana;
-        }
-    }
-
-    // Método para consumir maná
-    public bool ConsumeMana(int amount)
-    {
-        if (amount > currentMana)
-        {
-            return false;
-        }
-
-        currentMana -= amount;
-        UpdateManaBar();
-        return true;
-    }
-
-    // Método para regenerar maná
-    public void RegenerateMana(int amount)
-    {
-        currentMana += amount;
-
-        if (currentMana > maxMana)
-        {
-            currentMana = maxMana;
-        }
-
-        UpdateManaBar();
-    }
-
-    public int GetCurrentMana()
-    {
-        return currentMana;
-    }
-
-    public bool HasHeartsLeft()
-    {
-        return heartsUI.GetHearts() != 0;
-    }
+    // Getters
+    public bool IsAlive() => currentHealth > 0;
+    public int GetCurrentMana() => currentMana;
+    public bool HasHeartsLeft() => heartsUI.GetHearts() > 0;
 }

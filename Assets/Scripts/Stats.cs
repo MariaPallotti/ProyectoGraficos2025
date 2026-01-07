@@ -1,41 +1,66 @@
 using UnityEngine;
-using UnityEngine.UI;
-using System.Collections;
-using System.Collections.Generic;
 using TMPro;
+using System.Collections;
 
 public class Stats : MonoBehaviour
 {
     private static int botellas = 0;
 
-    [Header("TextosUI")]
+    [Header("UI References")]
     public TextMeshProUGUI botellastxt;
 
-    private void Update(){
-        if (botellastxt != null)
-        {
-            botellastxt.text = "MANA: " + botellas.ToString();
-        }
+    void Start()
+    {
+        // Actualizar al inicio para que no salga vacío
+        ActualizarTextoUI();
     }
+
+    // Eliminado Update(). Ahora es dirigido por eventos.
 
     public void UpdateBotellas(int numBotellas)
     {
         botellas += numBotellas;
+        ActualizarTextoUI();
+
+        // Efecto visual de "Pop"
+        if (botellastxt != null) StartCoroutine(AnimarTexto());
     }
 
-    public int GetBotellas()
+    void ActualizarTextoUI()
     {
-        return botellas;
+        if (botellastxt != null)
+        {
+            botellastxt.text = botellas.ToString();
+        }
     }
 
-    public void SetBotellas(int nBotellas)
+    IEnumerator AnimarTexto()
     {
-        botellas = nBotellas;
+        // Escala hacia arriba
+        float timer = 0;
+        Vector3 escalaOriginal = Vector3.one;
+        Vector3 escalaMax = new Vector3(1.5f, 1.5f, 1.5f); // Crece un 50%
+
+        while (timer < 0.1f)
+        {
+            botellastxt.transform.localScale = Vector3.Lerp(escalaOriginal, escalaMax, timer / 0.1f);
+            timer += Time.deltaTime;
+            yield return null;
+        }
+
+        // Vuelve a su tamaño
+        timer = 0;
+        while (timer < 0.1f)
+        {
+            botellastxt.transform.localScale = Vector3.Lerp(escalaMax, escalaOriginal, timer / 0.1f);
+            timer += Time.deltaTime;
+            yield return null;
+        }
+        botellastxt.transform.localScale = escalaOriginal;
     }
 
-    public static void Reset()
-    {
-        botellas = 0;
-    }
-
+    // Getters y Setters estáticos
+    public int GetBotellas() => botellas;
+    public void SetBotellas(int nBotellas) => botellas = nBotellas;
+    public static void Reset() => botellas = 0;
 }
