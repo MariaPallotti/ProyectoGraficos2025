@@ -4,19 +4,17 @@ using UnityEngine;
 using TMPro;
 using UnityEngine.SceneManagement;
 
-
-
 public class BattleManager : MonoBehaviour
 {
-    public HealthUI playerStats; // Referencia al script del jugador.
+    public HealthUI playerStats;
     public Stats manaSetter;
-    public CharacterStats enemyStats;  // Referencia al script del enemigo.
+    public CharacterStats enemyStats;
     public Animator animatorPlayer;
     public Animator animatorEnemy;
 
-    public TextMeshProUGUI combatLog; // Texto para mostrar mensajes de combate.
+    public TextMeshProUGUI combatLog;
 
-    private bool isPlayerTurn = true; // ¿Es el turno del jugador?
+    private bool isPlayerTurn = true;
     private bool noMana = false;
 
     public CanvasGroup exitBackgroundImageCanvasGroup;
@@ -37,6 +35,13 @@ public class BattleManager : MonoBehaviour
         playerStats.StartCombat();
         audioSource = GetComponent<AudioSource>();
 
+        // Asegurarse de que la imagen de Game Over esté oculta al inicio
+        if (exitBackgroundImageCanvasGroup != null)
+        {
+            exitBackgroundImageCanvasGroup.alpha = 0f;
+            exitBackgroundImageCanvasGroup.gameObject.SetActive(false);
+        }
+
         if (playerStats.GetCurrentMana() < 20)
         {
             combatLog.text += "\n¡No tienes maná! El turno pasa al enemigo.";
@@ -46,12 +51,12 @@ public class BattleManager : MonoBehaviour
         }
     }
 
-    // Método llamado cuando el jugador usa una carta.
     public void PlayerAttack(int cardValue)
     {
-        if (!isPlayerTurn) return; // Solo puede atacar en su turno.
+        if (!isPlayerTurn) return;
 
-        if (!playerStats.IsAlive()) {
+        if (!playerStats.IsAlive())
+        {
             combatLog.text = "Estás fuera de combate y no puedes atacar.";
             EndBattle();
             return;
@@ -69,16 +74,12 @@ public class BattleManager : MonoBehaviour
 
             if (!enemyStats.IsAlive())
             {
-                combatLog.text += "\n¡Has ganado la batalla!";
-                PlaySound(sonidoVictoria);
-                EndBattle();
+                StartCoroutine(SecuenciaVictoria());
                 return;
             }
 
-
-            // Cambiar turno al enemigo.
-            isPlayerTurn =  false;
-            Invoke("EnemyAttack", 1.5f); // El enemigo ataca después de un pequeño retraso.
+            isPlayerTurn = false;
+            Invoke("EnemyAttack", 1.5f);
         }
         else
         {
@@ -86,10 +87,41 @@ public class BattleManager : MonoBehaviour
         }
     }
 
-    // Método para el ataque del enemigo.
+    IEnumerator AnimarMuerteEnemigo()
+    {
+        Transform enemyTransform = animatorEnemy.transform;
+        Vector3 escalaOriginal = enemyTransform.localScale;
+        float duracion = 0.5f;
+        float tiempo = 0f;
+
+        while (tiempo < duracion)
+        {
+            tiempo += Time.deltaTime;
+            float porcentaje = tiempo / duracion;
+            enemyTransform.localScale = Vector3.Lerp(escalaOriginal, Vector3.zero, porcentaje);
+            enemyTransform.Rotate(0, 0, 360 * Time.deltaTime);
+            yield return null;
+        }
+
+        enemyTransform.localScale = Vector3.zero;
+    }
+
+    IEnumerator SecuenciaVictoria()
+    {
+        Time.timeScale = 0.1f;
+        yield return new WaitForSecondsRealtime(0.3f);
+        Time.timeScale = 1f;
+
+        PlaySound(sonidoVictoria);
+        StartCoroutine(AnimarMuerteEnemigo());
+        combatLog.text = "¡ENEMIGO ELIMINADO! Has ganado la batalla.";
+        yield return new WaitForSeconds(1.5f);
+        EndBattle();
+    }
+
     void EnemyAttack()
     {
-        if (!enemyStats.IsAlive() || !playerStats.IsAlive()) 
+        if (!enemyStats.IsAlive() || !playerStats.IsAlive())
         {
             EndBattle();
             return;
@@ -102,18 +134,17 @@ public class BattleManager : MonoBehaviour
         animatorEnemy.SetTrigger("attack");
         animatorPlayer.SetTrigger("getHit");
         playerStats.TakeCombatDamage(damage);
-        animatorPlayer.SetTrigger("backToIdle");
-        animatorEnemy.SetTrigger("backToIdle");
 
         combatLog.text = $"El enemigo atacó con {damage} de daño. Tu vida: {playerStats.currentHealth}";
 
         if (!playerStats.IsAlive())
         {
-            combatLog.text += "\nHas perdido la batalla.";
-            PlaySound(sonidoDerrota);
-            EndBattle();
+            StartCoroutine(ManejarDerrota());
             return;
         }
+
+        animatorPlayer.SetTrigger("backToIdle");
+        animatorEnemy.SetTrigger("backToIdle");
 
         if (playerStats.GetCurrentMana() < 20)
         {
@@ -121,38 +152,68 @@ public class BattleManager : MonoBehaviour
             {
                 combatLog.text += "\n¡Te has quedado sin maná y no puedes atacar! El turno pasa al enemigo.";
                 noMana = true;
-            } else
+            }
+            else
             {
                 combatLog.text += "\nNo tienes maná, turno del enemigo.";
             }
-            
+
             isPlayerTurn = false;
             Invoke("EnemyAttack", 1.5f);
+            return;
         }
 
-        // Cambiar turno al jugador.
-        isPlayerTurn =  true;
+        isPlayerTurn = true;
+    }
+
+    IEnumerator ManejarDerrota()
+    {
+        yield return new WaitForSeconds(1.0f);
+
+        animatorPlayer.SetTrigger("backToIdle");
+        animatorEnemy.SetTrigger("backToIdle");
+
+        PlaySound(sonidoDerrota);
+        combatLog.color = Color.red;
+        combatLog.text = "Has sido derrotado...";
+
+        yield return new WaitForSeconds(2f);
+
+        EndBattle();
     }
 
     void EndBattle()
     {
+        Time.timeScale = 1f;
         manaSetter.SetBotellas(playerStats.GetCurrentMana());
+
         if (!enemyStats.IsAlive())
         {
             Debug.Log("Ganaste la batalla. Cambiando de escena en 2 segundos...");
             EnemyManager.AddTestigo();
+
             if (exitBackgroundImageCanvasGroup == null)
             {
                 StartCoroutine(DelayedSceneChange());
-            } else
+            }
+            else
             {
                 StartCoroutine(FadeOutAndQuit());
             }
         }
         else if (!playerStats.IsAlive())
         {
-            if(!playerStats.HasHeartsLeft())
+            if (!playerStats.HasHeartsLeft())
             {
+                if (exitBackgroundImageCanvasGroup != null)
+                {
+                    StartCoroutine(MostrarGameOver());
+                }
+                else
+                {
+                    Debug.LogError("¡exitBackgroundImageCanvasGroup no está asignado!");
+                    StartCoroutine(DelayedSceneChange());
+                }
                 return;
             }
             Debug.Log("Perdiste la batalla. Cambiando de escena en 2 segundos...");
@@ -162,15 +223,9 @@ public class BattleManager : MonoBehaviour
 
     private IEnumerator DelayedSceneChange()
     {
-        yield return new WaitForSeconds(2f); // Espera 2 segundos
+        yield return new WaitForSeconds(2f);
         ReturnToMainScene();
     }
-
-    private IEnumerator waitForSceneChange()
-    {
-        yield return new WaitForSeconds(10f);
-    }
-
 
     void ReturnToMainScene()
     {
@@ -178,27 +233,50 @@ public class BattleManager : MonoBehaviour
         SceneManager.LoadScene("MainScene");
     }
 
-    private IEnumerator FadeOutAndQuit()
+    private IEnumerator MostrarGameOver()
     {
-        m_Timer = 0f; // Reinicia el temporizador
+        Debug.Log("Mostrando pantalla de Game Over...");
 
-        // Proceso de fade
+        exitBackgroundImageCanvasGroup.gameObject.SetActive(true);
+        exitBackgroundImageCanvasGroup.alpha = 0f;
+        m_Timer = 0f;
+
         while (m_Timer < fadeDuration)
         {
             m_Timer += Time.deltaTime;
-            float alphaValue = m_Timer / fadeDuration; // Calcula el alpha
+            float alphaValue = m_Timer / fadeDuration;
             exitBackgroundImageCanvasGroup.alpha = alphaValue;
-
-            yield return null; // Espera un frame
+            yield return null;
         }
 
-        // Espera el tiempo de duración de la pantalla de Game Over
+        exitBackgroundImageCanvasGroup.alpha = 1f;
         yield return new WaitForSeconds(displayImageDuration);
 
         Debug.Log("Saliendo del juego...");
-        SceneManager.LoadScene("MenuPrincipal"); // Cambia a la escena del menú principal
+        SceneManager.LoadScene("MenuPrincipal");
     }
-     
+
+    private IEnumerator FadeOutAndQuit()
+    {
+        exitBackgroundImageCanvasGroup.gameObject.SetActive(true);
+        exitBackgroundImageCanvasGroup.alpha = 0f;
+        m_Timer = 0f;
+
+        while (m_Timer < fadeDuration)
+        {
+            m_Timer += Time.deltaTime;
+            float alphaValue = m_Timer / fadeDuration;
+            exitBackgroundImageCanvasGroup.alpha = alphaValue;
+            yield return null;
+        }
+
+        exitBackgroundImageCanvasGroup.alpha = 1f;
+        yield return new WaitForSeconds(displayImageDuration);
+
+        Debug.Log("Saliendo del juego...");
+        SceneManager.LoadScene("MenuPrincipal");
+    }
+
     private void PlaySound(AudioClip clip)
     {
         if (clip != null && audioSource != null)
@@ -206,5 +284,4 @@ public class BattleManager : MonoBehaviour
             audioSource.PlayOneShot(clip);
         }
     }
-
 }
