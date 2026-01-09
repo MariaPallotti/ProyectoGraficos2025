@@ -59,6 +59,5 @@ public class EfectoCarta : MonoBehaviour, IPointerEnterHandler, IPointerExitHand
 
         transform.localScale = escalaOriginal * 0.9f;
 
-        // Opcional: Al hacer click, podrías hacer un Burst de partículas extra
     }
 }
