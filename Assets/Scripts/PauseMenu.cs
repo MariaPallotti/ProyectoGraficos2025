@@ -6,10 +6,19 @@ using UnityEngine.SceneManagement; // Necesario para reiniciar o salir al menú
 public class PauseMenu : MonoBehaviour
 {
     [Header("Referencias UI")]
-    public GameObject panelPausa; // Arrastra aquí tu objeto "PanelPausa"
+    public GameObject panelPausa;
 
     // Variable para saber si estamos pausados
+    public AudioSource musicaJuego; // La música de fondo del nivel
+    public AudioSource musicaPausa; // La música de ascensor/menú
+
     public static bool JuegoPausado = false;
+
+    void Start()
+    {
+        // Al empezar, nos aseguramos de que la música de pausa esté callada
+        if (musicaPausa != null) musicaPausa.Stop();
+    }
 
     void Update()
     {
@@ -32,6 +41,9 @@ public class PauseMenu : MonoBehaviour
         panelPausa.SetActive(false); // Ocultar menú
         Time.timeScale = 1f;         // El tiempo corre normal
         JuegoPausado = false;
+
+        if (musicaPausa != null) musicaPausa.Stop(); // Parar música pausa
+        if (musicaJuego != null) musicaJuego.UnPause(); // Reanudar música juego donde se quedó
     }
 
     void Pausar()
@@ -39,13 +51,14 @@ public class PauseMenu : MonoBehaviour
         panelPausa.SetActive(true);  // Mostrar menú
         Time.timeScale = 0f;         // Congelar el tiempo
         JuegoPausado = true;
+
+        if (musicaJuego != null) musicaJuego.Pause(); // Congelar música juego
+        if (musicaPausa != null) musicaPausa.Play();  // Empezar música pausa
     }
 
     public void SalirAlMenu()
     {
-        // IMPORTANTE: Antes de cambiar de escena, devolvemos el tiempo a la normalidad.
-        // Si no lo hacemos, ¡el menú principal o la siguiente partida empezarán congelados!
-        Time.timeScale = 1f;
+              Time.timeScale = 1f;
 
         Debug.Log("Cargando MenuPrincipal...");
 

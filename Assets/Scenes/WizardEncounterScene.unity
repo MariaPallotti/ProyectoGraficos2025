@@ -3689,6 +3689,14 @@ PrefabInstance:
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_IntArgument
       value: 20
       objectReference: {fileID: 0}
+    - target: {fileID: 1669752935816975645, guid: c6963ccbe47f1cd4fa84ea21e51923d3, type: 3}
+      propertyPath: m_Value
+      value: 250
+      objectReference: {fileID: 0}
+    - target: {fileID: 1669752935816975645, guid: c6963ccbe47f1cd4fa84ea21e51923d3, type: 3}
+      propertyPath: m_MaxValue
+      value: 250
+      objectReference: {fileID: 0}
     - target: {fileID: 1669752935826638155, guid: c6963ccbe47f1cd4fa84ea21e51923d3, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
