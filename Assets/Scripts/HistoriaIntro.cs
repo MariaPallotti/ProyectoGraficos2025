@@ -1,25 +1,34 @@
 using System.Collections;
 using UnityEngine;
-using TMPro; // Necesario para TextMeshPro
+using TMPro;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI; // <--- NECESARIO PARA MANEJAR IMÁGENES
 
 public class HistoriaIntro : MonoBehaviour
 {
     [Header("Configuración UI")]
-    public TextMeshProUGUI textoHistoria; // Arrastra tu objeto de texto aquí
-    public GameObject botonSaltar; // Opcional: Para mostrar "Presiona click para continuar"
+    public TextMeshProUGUI textoHistoria;
+    public GameObject botonSaltar;
+
+    [Header("Visuales")]
+    public Image displayImagen; // <--- Arrastra aquí el objeto Image del Canvas
+    public Sprite[] listaImagenes; // <--- Aquí pondremos tus ilustraciones
 
     [Header("Ajustes Historia")]
-    public float velocidadEscritura = 0.05f; // Cuanto más bajo, más rápido
+    public float velocidadEscritura = 0.05f;
 
-    [TextArea(3, 10)] // Esto hace que en el inspector tengas mucho espacio para escribir
-    public string[] parrafos; // Escribe aquí tu historia, párrafo a párrafo
+    [TextArea(3, 10)]
+    public string[] parrafos;
 
-    private int index = 0; // En qué párrafo estamos
+    private int index = 0;
 
     void Start()
     {
         textoHistoria.text = string.Empty;
+
+        // Cargar la primera imagen al empezar
+        ActualizarImagen();
+
         StartCoroutine(EscribirLinea());
     }
 
@@ -28,15 +37,12 @@ public class HistoriaIntro : MonoBehaviour
         // Al hacer click o pulsar espacio
         if (Input.GetMouseButtonDown(0) || Input.GetKeyDown(KeyCode.Space))
         {
-            // Si el texto ya se escribió completo, pasamos al siguiente
             if (textoHistoria.text == parrafos[index])
             {
                 SiguienteParrafo();
             }
             else
             {
-                // Si el jugador es impaciente y pulsa click MIENTRAS se escribe:
-                // Detenemos la escritura y mostramos todo el párrafo de golpe
                 StopAllCoroutines();
                 textoHistoria.text = parrafos[index];
             }
@@ -45,11 +51,9 @@ public class HistoriaIntro : MonoBehaviour
 
     IEnumerator EscribirLinea()
     {
-        // Escribe letra a letra
         foreach (char letra in parrafos[index].ToCharArray())
         {
             textoHistoria.text += letra;
-            // Aquí podrías poner un sonido de teclado: audioSource.PlayOneShot(sonidoTecla);
             yield return new WaitForSeconds(velocidadEscritura);
         }
     }
@@ -60,17 +64,30 @@ public class HistoriaIntro : MonoBehaviour
         {
             index++;
             textoHistoria.text = string.Empty;
+
+            // CAMBIAR IMAGEN AL AVANZAR PÁRRAFO
+            ActualizarImagen();
+
             StartCoroutine(EscribirLinea());
         }
         else
         {
-            // Se acabó la historia, cargar el juego
             EmpezarJuego();
+        }
+    }
+
+    void ActualizarImagen()
+    {
+        // Verificamos que hay imágenes asignadas y que no nos salimos del índice
+        if (displayImagen != null && index < listaImagenes.Length)
+        {
+            // Cambiamos el "Source Image" del componente Image
+            displayImagen.sprite = listaImagenes[index];
         }
     }
 
     void EmpezarJuego()
     {
-        SceneManager.LoadScene("MainScene"); // Asegúrate de que este es el nombre de tu mapa
+        SceneManager.LoadScene("MainScene");
     }
 }
