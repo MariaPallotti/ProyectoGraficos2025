@@ -999,7 +999,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1082b4256c67a7a42959bacc4ac597f3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  escalaMouseEncima: 1.1
+  escalaMouseEncima: 1.2
   velocidadAnimacion: 10
   sonidoSeleccion: {fileID: 8300000, guid: 670e0fda7041f72458214e84f2180d0e, type: 3}
   particulasHover: {fileID: 0}

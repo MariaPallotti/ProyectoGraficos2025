@@ -416,7 +416,7 @@ MonoBehaviour:
   botonSaltar: {fileID: 0}
   displayImagen: {fileID: 635301656}
   listaImagenes:
-  - {fileID: 0}
+  - {fileID: 21300000, guid: ae9bef77c0d806442a36a47b78a02370, type: 3}
   - {fileID: 21300000, guid: 55ea9653704bbb548bd5abd8e4dd752a, type: 3}
   - {fileID: 21300000, guid: 2374d112d0948b040aa4b0d7df0cf15e, type: 3}
   velocidadEscritura: 0.05
