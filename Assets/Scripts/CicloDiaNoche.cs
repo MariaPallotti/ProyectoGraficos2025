@@ -43,17 +43,34 @@ public class CicloDiaNoche : MonoBehaviour
             Destroy(gameObject);
             return;
         }
+
         BuscarLuces();
+
+        // Forzamos que la luz se ponga bien ANTES de que el jugador vea nada
+        ActualizarIntensidad();
     }
 
     void BuscarLuces()
     {
-        // Buscamos las luces por su nombre en la escena nueva
+        // 1. Buscamos el Sol
         GameObject objSol = GameObject.Find("Sol");
-        if (objSol != null) sol = objSol.GetComponent<Light>();
+        if (objSol != null)
+        {
+            sol = objSol.GetComponent<Light>();
+            sol.transform.position = new Vector3(0f, 50f, 0f); // Tu fix de posición
 
+            // --- LA LÍNEA MÁGICA ---
+            // Le decimos al Cielo (Skybox) que esta es la luz que debe seguir
+            RenderSettings.sun = sol;
+        }
+
+        // 2. Buscamos la Luna
         GameObject objLuna = GameObject.Find("Luna");
-        if (objLuna != null) luna = objLuna.GetComponent<Light>();
+        if (objLuna != null)
+        {
+            luna = objLuna.GetComponent<Light>();
+            luna.transform.position = new Vector3(0f, 50f, 0f); // Tu fix de posición
+        }
     }
 
     void Update()

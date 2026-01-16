@@ -98,7 +98,7 @@ LightmapSettings:
     m_TrainingDataDestination: TrainingData
     m_LightProbeSampleCountMultiplier: 4
   m_LightingDataAsset: {fileID: 0}
-  m_LightingSettings: {fileID: 0}
+  m_LightingSettings: {fileID: 4890085278179872738, guid: f0f05ece63e86ce49809c66d9ee6c42d, type: 2}
 --- !u!196 &4
 NavMeshSettings:
   serializedVersion: 2
@@ -3728,19 +3728,19 @@ MonoBehaviour:
   colorCielo:
     serializedVersion: 2
     key0: {r: 0.19003202, g: 0.49060807, b: 0.6415094, a: 1}
-    key1: {r: 1, g: 1, b: 1, a: 1}
-    key2: {r: 0.23137257, g: 0.5137255, b: 0.65882355, a: 0}
-    key3: {r: 0, g: 0, b: 0, a: 0}
-    key4: {r: 0, g: 0, b: 0, a: 0}
-    key5: {r: 0, g: 0, b: 0, a: 0}
+    key1: {r: 0.98072755, g: 0.9878795, b: 0.99147004, a: 1}
+    key2: {r: 1, g: 1, b: 1, a: 0}
+    key3: {r: 0.96616703, g: 0.9785955, b: 0.9849823, a: 0}
+    key4: {r: 0.23137257, g: 0.5137255, b: 0.65882355, a: 0}
+    key5: {r: 0.23137257, g: 0.5137255, b: 0.65882355, a: 0}
     key6: {r: 0, g: 0, b: 0, a: 0}
     key7: {r: 0, g: 0, b: 0, a: 0}
     ctime0: 0
-    ctime1: 31804
-    ctime2: 62451
-    ctime3: 0
-    ctime4: 0
-    ctime5: 0
+    ctime1: 6939
+    ctime2: 31804
+    ctime3: 57825
+    ctime4: 62451
+    ctime5: 62451
     ctime6: 0
     ctime7: 0
     atime0: 0
@@ -3752,7 +3752,7 @@ MonoBehaviour:
     atime6: 0
     atime7: 0
     m_Mode: 0
-    m_NumColorKeys: 3
+    m_NumColorKeys: 5
     m_NumAlphaKeys: 2
   colorAmbiente:
     serializedVersion: 2
@@ -24886,8 +24886,8 @@ Light:
     m_Resolution: -1
     m_CustomResolution: -1
     m_Strength: 0.507
-    m_Bias: 0.05
-    m_NormalBias: 0.4
+    m_Bias: 0.2
+    m_NormalBias: 0.45
     m_NearPlane: 0.2
     m_CullingMatrixOverride:
       e00: 1
@@ -31024,7 +31024,7 @@ Light:
   serializedVersion: 10
   m_Type: 1
   m_Shape: 0
-  m_Color: {r: 0.1666073, g: 0.22010823, b: 0.754717, a: 1}
+  m_Color: {r: 0.12776785, g: 0.58581364, b: 0.6981132, a: 1}
   m_Intensity: 0.5
   m_Range: 10
   m_SpotAngle: 30
